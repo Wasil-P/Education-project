@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "education-project"
+version = "0.1.0"
+description = ""
+authors = ["Wasil P <it.dzemidok@gmail.com>"]
+readme = "README.md"
+packages = [{include = "education_project"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+django = "^5.0.2"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
