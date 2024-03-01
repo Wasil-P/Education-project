@@ -1,5 +1,4 @@
-from models import Group
-from models import UserCourseAccess
+from Education_system.models import UserCourseAccess, Group
 
 from django.utils import timezone
 from django.db import transaction
@@ -10,11 +9,8 @@ def distribute_users_to_groups(user_course_access: UserCourseAccess):
     course = user_course_access.course
     user = user_course_access.user
     groups = Group.objects.filter(course=course)
-    filtered_groups = []
 
-    for group in groups:
-        if group.users.count() < group.max_users:
-            filtered_groups.append(group)
+    filtered_groups = Group.objects.filter(users__count__lt=groups.max_users).order_by('users__count')
 
     if not filtered_groups:
         raise ValueError("Достигнуто максимальное количество пользователей во всех группах.")

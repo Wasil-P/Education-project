@@ -1,5 +1,4 @@
 from Users.models import User
-from run import distribute_users_to_groups
 
 from django.db import models
 from django.utils import timezone
@@ -24,17 +23,21 @@ class Course(models.Model):
     class Meta:
         db_table = "course"
 
+    def __str__(self):
+        return self.name
+
 
 class UserCourseAccess(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    course = models.OneToOneField(Course, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
 
     class Meta:
         db_table = "user_course_access"
 
 
 @receiver([post_save], sender=UserCourseAccess)
-def target(sender, instance: UserCourseAccess):
+def target(sender, instance: UserCourseAccess, **kwargs):
+    from .run import distribute_users_to_groups
     distribute_users_to_groups(instance)
 
 
@@ -46,18 +49,21 @@ class Lesson(models.Model):
     class Meta:
         db_table = "lesson"
 
+    def __str__(self):
+        return self.name
+
 
 class Group(models.Model):
     name = models.CharField(max_length=100)
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name="group_course")
     users = models.ManyToManyField(User, related_name="group_users")
-    min_users = models.PositiveIntegerField()
-    max_users = models.PositiveIntegerField()
 
-    def save(self, *args, **kwargs):
-        self.min_users = self.course.min_users
-        self.max_users = self.course.max_users
-        super().save(*args, **kwargs)
+    @property
+    def is_available_to_add_user(self):
+        return self.course.max_users > len(self.users.all()) and self.course.min_users > len(self.users.all())
 
     class Meta:
         db_table = "group"
+
+    def __str__(self):
+        return self.name
