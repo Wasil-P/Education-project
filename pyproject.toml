@@ -9,6 +9,7 @@ packages = [{include = "education_project"}]
 [tool.poetry.dependencies]
 python = "^3.11"
 django = "^5.0.2"
+djangorestframework = "^3.14.0"
 
 
 [build-system]
