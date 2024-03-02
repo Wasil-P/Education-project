@@ -14,26 +14,25 @@ def distribute_users_to_groups(user_course_access: UserCourseAccess):
     user = user_course_access.user
     groups = Group.objects.filter(course=course)
 
-    filtered_groups = Group.objects.annotate(user_count=Count('users')).\
+    filtered_groups = Group.objects.annotate(user_count=Count('users')). \
         filter(user_count__lt=course.max_users). \
-        filter(course__start_date__gt=timezone.now().date()).\
+        filter(course__start_date__gt=timezone.now().date()). \
         order_by('user_count')
 
     if not filtered_groups:
-        last_group = groups.last()
-        new_group = Group.objects.create(
-            name=str(last_group.name) + "1",
-            course=course)
-        new_group.users.set([user])
+        with transaction.atomic():
+            last_group = groups.last()
+            new_group = Group.objects.create(
+                name=str(last_group.name) + "1",
+                course=course)
+            new_group.users.set([user])
 
-        new_group.save()
+            new_group.save()
 
     else:
         with transaction.atomic():
-                sorted_groups = groups.annotate(user_count=Count('users')).order_by("user_count")
-                target_group = sorted_groups.first()
-                target_group.users.add(user)
+            sorted_groups = groups.annotate(user_count=Count('users')).order_by("user_count")
+            target_group = sorted_groups.first()
+            target_group.users.add(user)
 
-                target_group.save()
-
-
+            target_group.save()
