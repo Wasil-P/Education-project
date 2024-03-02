@@ -7,6 +7,9 @@ from rest_framework.permissions import IsAuthenticated
 
 
 class CourseListAPIView(generics.ListAPIView):
+    """Класс генерации списка курсов, доступных для покупки (сортировка по дате),
+    которые включают в себя основную информацию о курсе и количество уроков,
+    которые принадлежат курсу"""
     serializer_class = CourseModelSerializer
 
     def get_queryset(self):
@@ -15,6 +18,8 @@ class CourseListAPIView(generics.ListAPIView):
 
 
 class CourseLessonsListAPIView(generics.ListAPIView):
+    """Класс генерации списка уроков по конкретному продукту
+    к которому пользователь имеет доступ"""
     serializer_class = CourseLessonsSerializer
     permission_classes = [IsAuthenticated]
 

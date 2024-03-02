@@ -28,6 +28,9 @@ class Course(models.Model):
 
 
 class UserCourseAccess(models.Model):
+    """Сущность, которая определяет доступ пользователя к продукту
+    При создании экземпляра класа автоматически с помощью функции target вызываецца функция
+    distribute_users_to_groups из модуля  run"""
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
 
@@ -54,6 +57,8 @@ class Lesson(models.Model):
 
 
 class Group(models.Model):
+    """Класс группы. Поля для максимального и минимального количества участников
+    хроняться в классе Course, сдесь происходит только проверка"""
     name = models.CharField(max_length=100)
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name="group_course")
     users = models.ManyToManyField(User, related_name="group_users")
